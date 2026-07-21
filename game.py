@@ -48,3 +48,15 @@ class Game:
         for name in card_names:
             card = Card(name)
             self.cards.append(card)
+
+    def reset_game(self):
+ 
+        self.selected_cards = []
+        self.matches = 0
+        self.attempts = 0
+        self.score = 0
+        
+        self.painting.reset()
+
+        self.initialize_cards()
+ 
