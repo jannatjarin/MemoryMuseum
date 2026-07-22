@@ -57,6 +57,9 @@ class Game:
 
             self.level_buttons.append(button)
 
+         #back button
+        self.back_button = pygame.Rect(20, 20, 120, 50)
+
     def initialize_cards(self):
 
         self.cards = []
@@ -104,20 +107,37 @@ class Game:
     def handle_events(self):
 
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 self.running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
+
                 mouse = pygame.mouse.get_pos()
 
+                # Welcome Screen
                 if self.current_screen == "welcome":
+
                     if self.start_button.collidepoint(mouse):
                         self.current_screen = "levels"
 
+                # Level Screen
                 elif self.current_screen == "levels":
-                    for button in self.level_buttons:
-                        if button.collidepoint(mouse):
-                            self.current_screen = "game"
+
+                    if self.back_button.collidepoint(mouse):
+                        self.current_screen = "welcome"
+
+                    else:
+                        for button in self.level_buttons:
+
+                            if button.collidepoint(mouse):
+                                self.current_screen = "game"
+
+                # Game Screen
+                elif self.current_screen == "game":
+
+                    if self.back_button.collidepoint(mouse):
+                        self.current_screen = "levels"
 
     def update(self):
 
@@ -134,6 +154,9 @@ class Game:
 
         elif self.current_screen == "game":
             self.draw_game_screen()
+
+
+        
 
     def draw_welcome_screen(self):
         #title
@@ -217,6 +240,28 @@ class Game:
 
             self.screen.blit(text,text_rect)
 
+        self.draw_back_button()
+
+
+    def draw_back_button(self):
+
+        pygame.draw.rect(
+            self.screen,
+            (120, 90, 60),
+            self.back_button,
+            border_radius=10
+        )
+
+        font = pygame.font.SysFont(None, 30)
+
+        text = font.render(
+            "Back",
+            True,
+            (255, 255, 255)
+        )
+
+        self.screen.blit(text, (50, 35))
+
     def draw_game_screen(self):
 
         title_font = pygame.font.SysFont(None,50)
@@ -261,8 +306,6 @@ class Game:
 
                 )
 
-                font = pygame.font.SysFont(None,40)
-
                 text = font.render(
                     str(index + 1),
                     True,
@@ -272,3 +315,5 @@ class Game:
                 self.screen.blit(text, (x + 50, y + 40))
 
                 index += 1
+
+            self.draw_back_button()
