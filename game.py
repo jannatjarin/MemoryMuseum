@@ -192,7 +192,43 @@ class Game:
 
     def update(self):
 
-        pass
+        if len(self.selected_cards) == 2:
+            self.check_match()
+
+
+    def check_match(self):
+        first = self.selected_cards[0]
+        second = self.selected_cards[1]
+        if first.get_name() == second.get_name():
+            first.match()
+            second.match()
+            self.matches += 1
+            self.score += 10
+            self.painting.restore_part()
+            if self.painting.is_completed():
+
+                print(
+
+                    "Painting Completed!"
+
+                )
+        else:
+            first.hide()
+            second.hide()
+            self.attempts += 1
+
+            self.selected_cards.clear()
+
+
+    
+
+    
+     
+
+
+
+
+        
 
     def draw(self):
 
@@ -320,6 +356,112 @@ class Game:
             True,
             (50, 50, 50)
         )
+
+        font = pygame.font.SysFont(
+
+            None,
+
+            30
+
+        )
+
+        score = font.render(
+
+            "Score : " + str(self.score),
+
+            True,
+
+            (40,40,40)
+
+        )
+
+        attempts = font.render(
+
+            "Attempts : " + str(self.attempts),
+
+            True,
+
+            (40,40,40)
+
+        )
+
+        matches = font.render(
+
+            "Matches : " + str(self.matches),
+
+            True,
+
+            (40,40,40)
+
+        )
+        self.screen.blit(
+
+            score,
+
+            (40,80)
+
+        )
+
+        self.screen.blit(
+
+            attempts,
+
+            (40,120)
+
+        )
+
+        self.screen.blit(
+
+            matches,
+
+            (40,160)
+
+        )
+        progress = pygame.font.SysFont(
+
+            None,
+
+            30
+
+        )
+
+        text = progress.render(
+
+            "Painting : "
+
+            +
+
+            str(
+
+                self.painting.get_progress()
+
+            )
+
+            +
+
+            "/16",
+
+            True,
+
+            (40,40,40)
+
+        )
+
+        self.screen.blit(
+
+            text,
+
+            (40,200)
+
+        )
+
+
+
+
+
+
+
+           
 
         self.screen.blit(title,(430, 20))
 
