@@ -215,9 +215,9 @@ class Game:
         else:
             first.hide()
             second.hide()
-            self.attempts += 1
+        self.attempts += 1
 
-            self.selected_cards.clear()
+        self.selected_cards.clear()
 
 
     
@@ -454,12 +454,6 @@ class Game:
             (40,200)
 
         )
-
-
-
-
-
-
 
            
 
