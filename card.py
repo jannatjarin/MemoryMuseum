@@ -3,12 +3,14 @@ class Card:
      self.card_name = card_name
      self.is_flipped = False
      self.is_matched = False
+
      def flip(self):
       self.is_flipped = True
     def hide(self):
      self.is_flipped = False
      def match(self):
       self.is_matched = True
+      
       def get_name(self):
        return self.card_name
       def get_flipped(self):
