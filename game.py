@@ -213,11 +213,12 @@ class Game:
             self.painting.restore_part()
             if self.painting.is_completed():
 
-                print(
-
-                    "Painting Completed!"
-
-                )
+                self.game_completed = True
+                if self.current_level == self.unlocked_levels:
+                    if self.unlocked_levels < 5:
+                        self.unlocked_levels += 1
+            self.current_screen = "complete"
+            
         else:
             first.hide()
             second.hide()
@@ -229,12 +230,7 @@ class Game:
     
 
     
-     
-
-
-
-
-        
+    
 
     def draw(self):
 
