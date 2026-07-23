@@ -8,6 +8,12 @@ class Game:
 
     def __init__(self):
 
+        self.current_screen = "welcome"
+
+        self.current_level = 1
+        self.unlocked_levels = 1
+        self.game_completed = False
+
         pygame.init()
 
         self.width = 1000
