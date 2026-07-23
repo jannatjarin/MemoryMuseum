@@ -2,55 +2,45 @@ class Painting:
 
     def __init__(self):
 
-        self.level = 1
+        self.current_level = 1
 
-        self.painting_name = ""
-
-        self.folder_name = ""
-
-        self.total_parts = 16
-
+        self.total_parts = 8
         self.restored_parts = 0
 
-        self.load_level(1)
+        self.painting_name = "Starry Night"
 
+        self.image_file = "starry_night.jpg"
 
     def load_level(self, level):
 
-        self.level = level
+        self.current_level = level
+
+        self.restored_parts = 0
 
         if level == 1:
 
             self.painting_name = "Starry Night"
-
-            self.folder_name = "starry_night"
+            self.image_file = "starry_night.jpg"
 
         elif level == 2:
 
             self.painting_name = "Mona Lisa"
-
-            self.folder_name = "mona_lisa"
+            self.image_file = "mona_lisa.jpg"
 
         elif level == 3:
 
             self.painting_name = "The Scream"
-
-            self.folder_name = "the_scream"
+            self.image_file = "the_scream.jpg"
 
         elif level == 4:
 
-            self.painting_name = "Girl With A Pearl Earring"
-
-            self.folder_name = "girl_with_pearl"
+            self.painting_name = "Girl with a Pearl Earring"
+            self.image_file = "girl_with_pearl.jpg"
 
         elif level == 5:
 
-            self.painting_name = "The Persistence Of Memory"
-
-            self.folder_name = "persistence_memory"
-
-        self.reset()
-
+            self.painting_name = "The Persistence of Memory"
+            self.image_file = "persistence_memory.jpg"
 
     def restore_part(self):
 
@@ -58,34 +48,26 @@ class Painting:
 
             self.restored_parts += 1
 
-
     def get_progress(self):
 
         return self.restored_parts
-
-
-    def get_percentage(self):
-
-        return int(
-            (self.restored_parts / self.total_parts) * 100
-        )
-
-
-    def get_name(self):
-
-        return self.painting_name
-
-
-    def get_folder(self):
-
-        return self.folder_name
-
 
     def is_completed(self):
 
         return self.restored_parts == self.total_parts
 
-
     def reset(self):
 
         self.restored_parts = 0
+
+    def get_name(self):
+
+        return self.painting_name
+
+    def get_image_file(self):
+
+        return self.image_file
+
+    def get_level(self):
+
+        return self.current_level
