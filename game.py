@@ -9,12 +9,11 @@ class Game:
     def __init__(self):
 
         self.current_screen = "welcome"
-
         self.current_level = 1
         self.painting = Painting()
         self.painting.load_level(
-            self.current_level
-        )
+             self.current_level
+)
         self.unlocked_levels = 1
         self.game_completed = False
 
@@ -51,7 +50,7 @@ class Game:
         self.attempts = 0
         self.score = 0
 
-        self.painting = Painting()
+        
 
         self.current_screen = "welcome"
 
@@ -90,21 +89,15 @@ class Game:
             6,6,
             7,7,
             8,8,
-            9,9,
-            10,10,
-            11,11,
-            12,12,
-            13,13,
-            14,14,
-            15,15,
-            16,16,
-
+            
         ]
 
 
         start_x = 180
 
         start_y = 120
+
+        
 
         card_width = 120
 
@@ -122,7 +115,11 @@ class Game:
 
                 y = start_y + row * (card_height + gap)
 
-                card = Card(card_names[index], x, y, card_width, card_height)
+                card = Card(card_names[index])
+                card.x = x
+                card.y = y
+                card.width = card_width
+                card.height = card_height
 
                 self.cards.append(card)
 
@@ -179,13 +176,7 @@ class Game:
                     else:
                         for i, button in enumerate(self.level_buttons):
                             if button.collidepoint(mouse):
-                                if i + 1 <= self.unlocked_levels:
-                                    self.current_level = i + 1
-                                    self.painting.load_level(
-                                        self.current_level
-                                    )
-                                    self.reset_game()
-
+                                self.painting.load_level(i + 1)
                                 self.current_screen = "game"
                                     
 
@@ -395,9 +386,28 @@ class Game:
     def draw_game_screen(self):
         title_font = pygame.font.SysFont(None, 50)
         title = title_font.render(
+    "Level " + str(self.painting.get_level()),
+    True,
+    (50,50,50)
+)
+        font = pygame.font.SysFont(None, 30)
+
+        painting_text = font.render(
+
             self.painting.get_name(),
+
             True,
-            (50, 50, 50)
+
+            (60,60,60)
+
+        )
+
+        self.screen.blit(
+
+            painting_text,
+
+            (410,70)
+
         )
         font = pygame.font.SysFont(
 
@@ -481,7 +491,7 @@ class Game:
 
             +
 
-            "/16",
+            "/8",
 
             True,
 
@@ -534,15 +544,8 @@ class Game:
 
         font = pygame.font.SysFont(None, 40)
 
-        for row in range(4):
-
-            for column in range(4):
-
-                x = start_x + column * (card_width + gap)
-
-                y = start_y + row * (card_height + gap)
-
-                index += 1
+        
+               
 
         for card in self.cards:
 
