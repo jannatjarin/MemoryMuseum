@@ -11,9 +11,10 @@ class Game:
         self.current_screen = "welcome"
         self.current_level = 1
         self.painting = Painting()
-        self.painting.load_level(
-             self.current_level
-)
+        self.painting.load_level(self.current_level)
+
+        self.painting.load_image()
+
         self.unlocked_levels = 1
         self.game_completed = False
 
@@ -173,6 +174,7 @@ class Game:
                         for i, button in enumerate(self.level_buttons):
                             if button.collidepoint(mouse):
                                 self.painting.load_level(i + 1)
+                                self.painting.load_image()
                                 self.current_screen = "game"
                                     
 

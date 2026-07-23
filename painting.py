@@ -1,3 +1,5 @@
+import pygame
+
 class Painting:
 
     def __init__(self):
@@ -10,6 +12,8 @@ class Painting:
         self.painting_name = "Starry Night"
 
         self.image_file = "starry_night.jpg"
+
+        self.image = None
 
     def load_level(self, level):
 
@@ -39,8 +43,8 @@ class Painting:
 
         elif level == 5:
 
-            self.painting_name = "The Persistence of Memory"
-            self.image_file = "persistence_memory.jpg"
+            self.painting_name = "The Weeping Memory"
+            self.image_file = "the_weeping_woman.jpg"
 
     def restore_part(self):
 
@@ -71,3 +75,13 @@ class Painting:
     def get_level(self):
 
         return self.current_level
+
+    def load_image(self):
+
+        image_path = "assets/images/" + self.image_file
+
+        self.image = pygame.image.load(image_path)
+
+    def get_image(self):
+
+        return self.image
