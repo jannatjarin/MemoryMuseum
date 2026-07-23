@@ -218,12 +218,15 @@ class Game:
             self.matches += 1
             self.score += 10
             self.painting.restore_part()
-            if self.painting.is_completed():
 
+            if self.painting.is_completed():
                 self.game_completed = True
+
                 if self.current_level == self.unlocked_levels:
+
                     if self.unlocked_levels < 5:
                         self.unlocked_levels += 1
+
             self.current_screen = "complete"
 
         else:
@@ -498,3 +501,49 @@ class Game:
             card.draw(self.screen)
 
         self.draw_back_button()
+
+
+    def draw_complete_screen(self):
+
+        title_font = pygame.font.SysFont(None, 60)
+
+        title = title_font.render(
+
+            "Congratulations!",
+            True,
+            (40,40,40)
+        )
+
+        self.screen.blit(title,(300,120))
+
+        font = pygame.font.SysFont(None,35)
+
+        message = font.render(
+            "You completed the painting!",
+            True,
+            (60,60,60)
+        )
+
+        self.screen.blit(message,(300,200))
+
+        pygame.draw.rect(
+
+            self.screen,
+            (90,120,80),
+            self.next_button,
+            border_radius=10
+        )
+
+        text = font.render(
+            "Next Level",
+            True,
+            (255,255,255)
+         )
+
+        text_rect = text.get_rect(
+
+            center=self.next_button.center
+
+        )
+
+        self.screen.blit(text,text_rect)
