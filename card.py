@@ -103,7 +103,7 @@ class Card:
                 font = pygame.font.SysFont(None, 40)
 
                 text = font.render(
-                    self.card_name,
+                    str(self.card_name),
                     True,
                     (50,50,50)
                 )

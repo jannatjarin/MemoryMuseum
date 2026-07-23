@@ -50,10 +50,6 @@ class Game:
         self.attempts = 0
         self.score = 0
 
-        
-
-        self.current_screen = "welcome"
-
         #welcome screen buttons
         self.start_button = pygame.Rect(350, 250, 300, 60)
 
@@ -469,29 +465,14 @@ class Game:
             (40,160)
 
         )
-        progress = pygame.font.SysFont(
-
-            None,
-
-            30
-
-        )
+        progress = pygame.font.SysFont(None,30)
 
         text = progress.render(
 
             "Painting : "
-
             +
-
-            str(
-
-                self.painting.get_progress()
-
-            )
-
-            +
-
-            "/8",
+            str(self.painting.get_progress())
+            + "/8",
 
             True,
 
@@ -505,44 +486,9 @@ class Game:
 
             (40,200)
 
-        )
-
-
-
-        font = pygame.font.SysFont(
-            None,
-            30
-        )
-        painting_text = font.render(
-
-            "Painting: " + self.painting.get_name(),
-
-            True,
-
-            (40,40,40)
-
-        )
-
-        self.screen.blit(
-            painting_text,
-            (30,650)
-        )
-
-           
+        )  
 
         self.screen.blit(title,(430, 20))
-
-        start_x = 180
-        start_y = 120
-
-        card_width = 120
-        card_height = 120
-
-        gap = 20
-
-        index = 0
-
-        font = pygame.font.SysFont(None, 40)
 
         
                
