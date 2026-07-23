@@ -11,6 +11,10 @@ class Game:
         self.current_screen = "welcome"
 
         self.current_level = 1
+        self.painting = Painting()
+        self.painting.load_level(
+            self.current_level
+        )
         self.unlocked_levels = 1
         self.game_completed = False
 
@@ -177,8 +181,13 @@ class Game:
                             if button.collidepoint(mouse):
                                 if i + 1 <= self.unlocked_levels:
                                     self.current_level = i + 1
+                                    self.painting.load_level(
+                                        self.current_level
+                                    )
                                     self.reset_game()
-                                    self.current_screen = "game"
+
+                                self.current_screen = "game"
+                                    
 
                 #game screen
                 elif self.current_screen == "game":
@@ -384,15 +393,12 @@ class Game:
         self.screen.blit(text, (50, 35))
 
     def draw_game_screen(self):
-
-        title_font = pygame.font.SysFont(None,50)
-
+        title_font = pygame.font.SysFont(None, 50)
         title = title_font.render(
-            "Level 1",
+            self.painting.get_name(),
             True,
             (50, 50, 50)
         )
-
         font = pygame.font.SysFont(
 
             None,
@@ -489,6 +495,27 @@ class Game:
 
             (40,200)
 
+        )
+
+
+
+        font = pygame.font.SysFont(
+            None,
+            30
+        )
+        painting_text = font.render(
+
+            "Painting: " + self.painting.get_name(),
+
+            True,
+
+            (40,40,40)
+
+        )
+
+        self.screen.blit(
+            painting_text,
+            (30,650)
         )
 
            
