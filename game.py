@@ -188,6 +188,16 @@ class Game:
 
                         self.select_card(mouse)
 
+                elif self.current_screen == "complete":
+
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse = pygame.mouse.get_pos()
+
+                    if self.next_button.collidepoint(mouse):
+                        self.current_level += 1
+                        self.reset_game()
+                        self.current_screen = "levels"
+
     def select_card(self, mouse):
 
         for card in self.cards:
