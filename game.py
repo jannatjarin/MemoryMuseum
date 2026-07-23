@@ -73,6 +73,7 @@ class Game:
         self.back_button = pygame.Rect(20, 20, 120, 50)
 
     def initialize_cards(self):
+        card.set_image(None)
 
         self.cards = []
 
