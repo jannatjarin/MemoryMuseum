@@ -218,7 +218,7 @@ class Game:
                     if self.unlocked_levels < 5:
                         self.unlocked_levels += 1
             self.current_screen = "complete"
-            
+
         else:
             first.hide()
             second.hide()
@@ -244,6 +244,9 @@ class Game:
 
         elif self.current_screen == "game":
             self.draw_game_screen()
+
+        elif self.current_screen == "complete":
+            self.draw_complete_screen()
 
     def draw_welcome_screen(self):
         #title
