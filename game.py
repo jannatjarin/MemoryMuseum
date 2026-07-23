@@ -14,6 +14,13 @@ class Game:
         self.unlocked_levels = 1
         self.game_completed = False
 
+        self.next_button = pygame.Rect(
+            350,
+            450,
+            300,
+            60
+        )
+
         pygame.init()
 
         self.width = 1000
