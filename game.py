@@ -173,10 +173,12 @@ class Game:
                         self.current_screen = "welcome"
 
                     else:
-                        for button in self.level_buttons:
-
+                        for i, button in enumerate(self.level_buttons):
                             if button.collidepoint(mouse):
-                                self.current_screen = "game"
+                                if i + 1 <= self.unlocked_levels:
+                                    self.current_level = i + 1
+                                    self.reset_game()
+                                    self.current_screen = "game"
 
                 #game screen
                 elif self.current_screen == "game":
