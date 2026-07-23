@@ -194,9 +194,10 @@ class Game:
                         mouse = pygame.mouse.get_pos()
 
                     if self.next_button.collidepoint(mouse):
-                        self.current_level += 1
-                        self.reset_game()
-                        self.current_screen = "levels"
+                        if self.current_level < 5:
+                            self.current_level += 1
+                            self.reset_game()
+                            self.current_screen = "levels"
 
     def select_card(self, mouse):
 
@@ -340,25 +341,31 @@ class Game:
 
         for i, button in enumerate(self.level_buttons):
 
-            pygame.draw.rect(
-                self.screen,
-                (100, 100, 150),
-                button,
-                border_radius=10
-            )
+            if i + 1 <= self.unlocked_levels:
+                color = (100,100,150)
+                text = "Level " + str(i+1)
+            else:
+                color = (150,150,150)
+                text = "Locked"
 
-            text = button_font.render(
-                "Level " + str(i + 1),
-                True,
-                (255, 255, 255)
-            )
+        pygame.draw.rect(
+            self.screen,
+            color,
+            button,
+            border_radius=10
+        )
 
-            text_rect = text.get_rect(
-                center=button.center
-            )
+        label = button_font.render(
+            text,
+            True,
+            (255,255,255)
+        )
 
-            self.screen.blit(text,text_rect)
+        rect = label.get_rect(
+            center=button.center
+        )
 
+        self.screen.blit(label,rect)
         self.draw_back_button()
 
 
