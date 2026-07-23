@@ -45,6 +45,7 @@ class Game:
         self.running = True
 
         self.cards = []
+        self.card_images = []
         self.selected_cards = []
 
         self.matches = 0
@@ -73,7 +74,47 @@ class Game:
         #back button
         self.back_button = pygame.Rect(20, 20, 120, 50)
 
+    def create_card_images(self):
+
+        self.card_images = []
+
+        image = self.painting.image
+
+        image_width = image.get_width()
+        image_height = image.get_height()
+
+        piece_width = image_width // 4
+        piece_height = image_height // 2
+
+        for row in range(2):
+
+            for column in range(4):
+
+                x = column * piece_width
+                y = row * piece_height
+
+                piece = image.subsurface(
+                    (x, y, piece_width, piece_height)
+                )
+                piece = pygame.transform.scale(
+                    piece,
+                    (120, 120)
+                )
+
+                self.card_images.append(piece)
+
+        duplicate_images = []
+
+        for piece in self.card_images:
+
+            duplicate_images.append(piece)
+            duplicate_images.append(piece)
+
+        self.card_images = duplicate_images
+
     def initialize_cards(self):
+
+        self.create_card_images()
 
         self.cards = []
 
@@ -117,6 +158,11 @@ class Game:
                 card.y = y
                 card.width = card_width
                 card.height = card_height
+                card.set_image(
+
+                    self.card_images[index]
+
+                )
 
                 self.cards.append(card)
 
