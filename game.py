@@ -250,7 +250,9 @@ class Game:
                             self.current_level += 1
 
                         self.reset_game()
+                        self.elapsed_time = 0
                         self.current_screen = "levels"
+                        
 
     def select_card(self, mouse):
 
