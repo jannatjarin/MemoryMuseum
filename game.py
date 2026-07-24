@@ -597,6 +597,19 @@ class Game:
         )
 
         self.screen.blit(message,(300,200))
+        time_taken = font.render(
+            "Time : " + str(self.elapsed_time) + " seconds",
+            True,
+             (60,60,60)
+             )
+        self.screen.blit(
+
+    time_taken,
+
+    (360,250)
+
+)
+
 
         pygame.draw.rect(
 
