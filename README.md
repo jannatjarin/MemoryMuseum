@@ -3,8 +3,8 @@
 ## Programming in Python Midterm Project
 
 ### Group Members
-- Member 1: [Most Fatematuz Zohora Chadni]
-- Member 2: [Anika Sultana Anu]
+- Member 1: [Anika Sultana Anu]
+- Member 2: [Most Fatematuz Zohora Chadni]
 - Member 3: [Jannat Jarin]
 - Member 4: [Nusrat Jahan Sumaiya]
 
