@@ -48,6 +48,7 @@ class Game:
         self.cards = []
         self.card_images = []
         self.selected_cards = []
+        self.waiting = False
 
         self.matches = 0
         self.attempts = 0
@@ -281,6 +282,9 @@ class Game:
 
     def select_card(self, mouse):
 
+        if self.waiting:
+            return
+
         for card in self.cards:
 
             if card.is_clicked(mouse):
@@ -312,6 +316,7 @@ class Game:
             self.time_left = 0
 
         if len(self.selected_cards) == 2:
+            self.waiting = True
             self.check_match()
 
             if self.current_screen == "game":
@@ -347,6 +352,7 @@ class Game:
         self.attempts += 1
 
         self.selected_cards.clear()
+        self.waiting = False
 
 
     def draw(self):
