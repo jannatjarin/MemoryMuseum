@@ -251,22 +251,41 @@ class Game:
 
                 mouse = pygame.mouse.get_pos()
 
-                #welcome screen
+                #welcom screen
+
                 if self.current_screen == "welcome":
 
                     if self.start_button.collidepoint(mouse):
+
                         self.current_screen = "levels"
 
-                #level screen
+                    elif self.score_button.collidepoint(mouse):
+
+                        self.current_screen = "scoreboard"
+
+                    elif self.how_button.collidepoint(mouse):
+
+                        self.current_screen = "how"
+
+                #level select screen
+
                 elif self.current_screen == "levels":
 
                     if self.back_button.collidepoint(mouse):
+
+                        print("Level clicked")
+
                         self.current_screen = "welcome"
 
                     else:
+
                         for i, button in enumerate(self.level_buttons):
 
                             if button.collidepoint(mouse):
+
+                                #locked level
+                                if i + 1 > self.unlocked_levels:
+                                    return
 
                                 self.current_level = i + 1
 
@@ -281,28 +300,51 @@ class Game:
                                 self.elapsed_time = 0
 
                                 self.current_screen = "game"
-                                    
 
-                #game screen
+                #game scrren
+
                 elif self.current_screen == "game":
 
                     if self.back_button.collidepoint(mouse):
+
                         self.current_screen = "levels"
 
                     else:
 
                         self.select_card(mouse)
 
+                #scrreboard screen
+
+                elif self.current_screen == "scoreboard":
+
+                    if self.back_button.collidepoint(mouse):
+
+                        self.current_screen = "welcome"
+
+                #how to play scrren
+
+                elif self.current_screen == "how":
+
+                    if self.back_button.collidepoint(mouse):
+
+                        self.current_screen = "welcome"
+
+                #level complete screen
+
                 elif self.current_screen == "complete":
 
                     if self.next_button.collidepoint(mouse):
+
                         if self.current_level < 5:
+
                             self.current_level += 1
 
                         self.reset_game()
+
                         self.elapsed_time = 0
+
                         self.current_screen = "levels"
-                        
+                            
 
     def select_card(self, mouse):
 
@@ -359,57 +401,61 @@ class Game:
 
 
     def check_match(self):
+
         first = self.selected_cards[0]
         second = self.selected_cards[1]
 
         print("Checking", first.get_name(), second.get_name())
+
         if first.get_name() == second.get_name():
+
             first.match()
             second.match()
+
             self.matches += 1
             self.score += 10
+
             self.painting.restore_part()
 
-        if self.painting.is_completed():
+            if self.painting.is_completed():
 
-            self.game_completed = True
+                self.game_completed = True
 
-            level = str(self.current_level)
+                level = str(self.current_level)
 
-            self.new_record = False
+                self.new_record = False
 
-            best_attempts = self.scores[level]["attempts"]
+                best_attempts = self.scores[level]["attempts"]
+                best_time = self.scores[level]["time"]
 
-            best_time = self.scores[level]["time"]
+                if best_attempts is None or self.attempts < best_attempts:
 
-            if best_attempts is None or self.attempts < best_attempts:
+                    self.scores[level]["attempts"] = self.attempts
+                    self.new_record = True
 
-                self.scores[level]["attempts"] = self.attempts
+                if best_time is None or self.elapsed_time < best_time:
 
-                self.new_record = True
+                    self.scores[level]["time"] = self.elapsed_time
+                    self.new_record = True
 
-            if best_time is None or self.elapsed_time < best_time:
+                self.save_scores()
 
-                self.scores[level]["time"] = self.elapsed_time
+                if self.current_level == self.unlocked_levels:
 
-                self.new_record = True
+                    if self.unlocked_levels < 5:
+                        self.unlocked_levels += 1
 
-            self.save_scores()
-
-            if self.current_level == self.unlocked_levels:
-
-                if self.unlocked_levels < 5:
-
-                    self.unlocked_levels += 1
-
-            self.current_screen = "complete"
+                self.current_screen = "complete"
 
         else:
+
             first.hide()
             second.hide()
+
         self.attempts += 1
 
         self.selected_cards.clear()
+
         self.waiting = False
 
 
@@ -444,6 +490,13 @@ class Game:
         elif self.current_screen == "complete":
             self.draw_complete_screen()
 
+        elif self.current_screen == "scoreboard":
+            self.draw_scoreboard_screen()
+
+        elif self.current_screen == "how":
+            self.draw_how_screen()
+
+
     def draw_welcome_screen(self):
         #title
 
@@ -472,9 +525,7 @@ class Game:
 
             (self.how_button, "How To Play"),
 
-            (self.score_button, "Scoreboard"),
-
-            (self.player_button, "Create Player")
+            (self.score_button, "Best score"),
 
         ]
 
@@ -622,87 +673,181 @@ class Game:
         self.screen.blit(text, text_rect)
 
 
-
-    def draw_complete_screen(self):
+    def draw_scoreboard_screen(self):
 
         title_font = pygame.font.SysFont(None, 60)
 
         title = title_font.render(
+            "Best Scores",
+            True,
+            (40, 40, 40)
+        )
 
-            "Congratulations!",
+        self.screen.blit(title, (360, 50))
+
+        font = pygame.font.SysFont(None, 35)
+
+        level = font.render(
+            "Level",
             True,
             (40,40,40)
         )
 
-        self.screen.blit(title,(300,120))
-
-        font = pygame.font.SysFont(None,35)
-
-        message = font.render(
-            "You completed the painting!",
+        attempts = font.render(
+            "Attempts",
             True,
-            (60,60,60)
+            (40,40,40)
         )
 
-        self.screen.blit(message,(300,200))
-        time_taken = font.render(
-            "Time : " + str(self.elapsed_time) + " seconds",
+        time = font.render(
+            "Time",
             True,
-             (60,60,60)
-             )
-        self.screen.blit(
+            (40,40,40)
+        )
 
-    time_taken,
+        self.screen.blit(level, (180,150))
+        self.screen.blit(attempts, (420,150))
+        self.screen.blit(time, (700,150))
 
-    (360,250)
+        y = 220
+
+        for i in range(1,6):
+
+            data = self.scores[str(i)]
+
+            if data["attempts"] is None:
+
+                attempt_text = "-"
+
+            else:
+
+                attempt_text = str(data["attempts"])
+
+            if data["time"] is None:
+
+                time_text = "-"
+
+            else:
+
+                time_text = str(data["time"]) + " s"
+
+            level_text = font.render(
+
+                str(i),
+
+                True,
+
+                (40,40,40)
+
+            )
+
+            attempt_render = font.render(
+
+                attempt_text,
+
+                True,
+
+                (40,40,40)
+
+            )
+
+            time_render = font.render(
+
+                time_text,
+
+                True,
+
+                (40,40,40)
+
+            )
+
+            self.screen.blit(level_text, (200,y))
+            self.screen.blit(attempt_render, (450,y))
+            self.screen.blit(time_render, (710,y))
+
+            y += 70
+
+        self.draw_back_button()
 
 
+    def draw_how_screen(self):
 
-    if self.new_record:
-    
-        record_font = pygame.font.SysFont(None, 45)
-    
-        record_text = record_font.render(
-    
-             "NEW RECORD!",
-    
+        title_font = pygame.font.SysFont(None, 60)
+
+        title = title_font.render(
+            "How To Play",
             True,
-    
-            (200, 50, 50)
-    
-        )
-    
-        self.screen.blit(
-    
-            record_text,
-    
-            (365, 300)
-    
-        )
-    
-
-)
-
-        
-
-        pygame.draw.rect(
-
-            self.screen,
-            (90,120,80),
-            self.next_button,
-            border_radius=10
+            (40, 40, 40)
         )
 
-        text = font.render(
-            "Next Level",
+        self.screen.blit(title, (340, 50))
+
+        font = pygame.font.SysFont(None, 32)
+
+        instructions = [
+
+            "1. Choose any unlocked level.",
+
+            "2. Click two cards to reveal them.",
+
+            "3. Match both pieces of the painting.",
+
+            "4. Match all 8 pairs to finish the level.",
+
+            "5. Fewer attempts = Better score.",
+
+            "6. Faster time = Better record.",
+
+            "7. Beat your best score to get NEW RECORD!"
+
+        ]
+
+        y = 150
+
+        for line in instructions:
+
+            text = font.render(
+                line,
+                True,
+                (50, 50, 50)
+            )
+
+            self.screen.blit(
+                text,
+                (120, y)
+            )
+
+            y += 55
+
+        self.draw_back_button()
+
+    def draw_game_screen(self):
+
+        for card in self.cards:
+
+            card.draw(self.screen)
+
+        font = pygame.font.SysFont(None, 32)
+
+        level_text = font.render(
+            "Level " + str(self.current_level),
             True,
-            (255,255,255)
-         )
-
-        text_rect = text.get_rect(
-
-            center=self.next_button.center
-
+            (40, 40, 40)
         )
+        self.screen.blit(level_text, (20, 90))
 
-        self.screen.blit(text,text_rect)
+        attempts_text = font.render(
+            "Attempts: " + str(self.attempts),
+            True,
+            (40, 40, 40)
+        )
+        self.screen.blit(attempts_text, (740, 20))
+
+        time_text = font.render(
+            "Time: " + str(self.elapsed_time) + "s",
+            True,
+            (40, 40, 40)
+        )
+        self.screen.blit(time_text, (740, 60))
+
+        self.draw_back_button()

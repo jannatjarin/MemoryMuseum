@@ -124,3 +124,6 @@ class Card:
                 rectangle,
                 border_radius=8
             )
+
+
+    
