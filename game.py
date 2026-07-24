@@ -52,6 +52,9 @@ class Game:
         self.matches = 0
         self.attempts = 0
         self.score = 0
+        self.start_time = 0
+
+        self.elapsed_time = 0
 
         #welcome screen buttons
         self.start_button = pygame.Rect(350, 250, 300, 60)
