@@ -120,7 +120,6 @@ class Game:
         
 
         self.create_card_images()
-        random.shuffle(self.card_images)
 
         self.cards = []
 
@@ -172,6 +171,26 @@ class Game:
                 )
 
                 self.cards.append(card)
+
+                index += 1
+
+        import random
+
+        random.shuffle(self.cards)
+
+        index = 0
+
+        for row in range(4):
+
+            for column in range(4):
+
+                x = start_x + column * (card_width + gap)
+
+                y = start_y + row * (card_height + gap)
+
+                self.cards[index].x = x
+
+                self.cards[index].y = y
 
                 index += 1
 
