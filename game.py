@@ -434,10 +434,11 @@ class Game:
     def draw_game_screen(self):
         title_font = pygame.font.SysFont(None, 50)
         title = title_font.render(
-    "Level " + str(self.painting.get_level()),
-    True,
-    (50,50,50)
-)
+        "Level " + str(self.painting.get_level()),
+        True,
+        (50,50,50)
+        )
+        
         font = pygame.font.SysFont(None, 30)
 
         painting_text = font.render(

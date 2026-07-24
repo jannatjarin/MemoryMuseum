@@ -81,7 +81,3 @@ class Painting:
         image_path = "assets/images/" + self.image_file
 
         self.image = pygame.image.load(image_path)
-
-    def get_image(self):
-
-        return self.image

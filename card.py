@@ -47,8 +47,7 @@ class Card:
         return self.is_matched
     def set_image(self, image):
             self.image = image
-    def get_image(self):
-         return self.image
+
 
 
 
