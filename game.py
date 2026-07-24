@@ -117,6 +117,7 @@ class Game:
         
 
         self.create_card_images()
+        random.shuffle(self.card_images)
 
         self.cards = []
 
@@ -131,7 +132,6 @@ class Game:
             8,8,
             
         ]
-        random.shuffle(card_names)
         
 
 
