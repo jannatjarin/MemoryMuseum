@@ -227,7 +227,9 @@ class Game:
                         for i, button in enumerate(self.level_buttons):
                             if button.collidepoint(mouse):
                                 self.painting.load_level(i + 1)
-                                self.painting.load_image()
+                                self.reset_game()
+                                self.start_time = pygame.time.get_ticks()
+                                
                                 self.current_screen = "game"
                                     
 
