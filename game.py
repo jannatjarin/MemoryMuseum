@@ -280,6 +280,14 @@ class Game:
 
         if len(self.selected_cards) == 2:
             self.check_match()
+            if self.current_screen == "game":
+                 self.elapsed_time = (
+                     pygame.time.get_ticks()
+                     - self.start_time
+                       ) // 1000
+
+
+
 
 
     def check_match(self):
