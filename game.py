@@ -508,6 +508,15 @@ class Game:
             (40,40,40)
 
         )
+        time_text = font.render(
+            "Time : " + str(self.elapsed_time) + " s",
+             True,
+             (40,40,40)
+             )
+        self.screen.blit(
+            time_text,
+            (40,200)
+        )
         self.screen.blit(
 
             score,
