@@ -53,8 +53,13 @@ class Game:
         self.matches = 0
         self.attempts = 0
         self.score = 0
-        self.time_limit = 120
-        self.time_left = self.time_limit
+
+        self.waiting = False
+
+        self.wait_start = 0
+
+        self.wait_time = 700
+
         self.start_time = 0
 
         self.elapsed_time = 0
@@ -120,11 +125,10 @@ class Game:
         self.card_images = duplicate_images
 
     def initialize_cards(self):
-        
-
-        self.create_card_images()
 
         self.cards = []
+
+        self.create_card_images()
 
         card_names = [
             1,1,
@@ -209,10 +213,11 @@ class Game:
 
         self.initialize_cards()
         self.start_time = pygame.time.get_ticks()
-        self.time_left = self.time_limit
 
 
     def start(self):
+
+        self.painting.load_image()
         self.initialize_cards()
         self.start_time = pygame.time.get_ticks()
         while self.running:
@@ -251,11 +256,21 @@ class Game:
 
                     else:
                         for i, button in enumerate(self.level_buttons):
+
                             if button.collidepoint(mouse):
-                                self.painting.load_level(i + 1)
-                                self.reset_game()
+
+                                self.current_level = i + 1
+
+                                self.painting.load_level(self.current_level)
+
+                                self.painting.load_image()
+
+                                self.initialize_cards()
+
                                 self.start_time = pygame.time.get_ticks()
-                                
+
+                                self.elapsed_time = 0
+
                                 self.current_screen = "game"
                                     
 
@@ -299,6 +314,10 @@ class Game:
 
                 if len(self.selected_cards) == 2:
 
+                    self.waiting = True
+
+                    self.wait_start = pygame.time.get_ticks()
+
                     return
 
                 card.flip()
@@ -309,21 +328,19 @@ class Game:
 
     def update(self):
 
-        elapsed = (pygame.time.get_ticks() - self.start_time) // 1000
-        self.time_left = self.time_limit - elapsed
+        if self.current_screen == "game":
 
-        if self.time_left < 0:
-            self.time_left = 0
+            self.elapsed_time = (
+                pygame.time.get_ticks() - self.start_time
+            ) // 1000
 
-        if len(self.selected_cards) == 2:
-            self.waiting = True
-            self.check_match()
+        if self.waiting:
 
-            if self.current_screen == "game":
-                 self.elapsed_time = (
-                     pygame.time.get_ticks()
-                     - self.start_time
-                       ) // 1000
+            current_time = pygame.time.get_ticks()
+
+            if current_time - self.wait_start >= self.wait_time:
+
+                self.check_match()
 
 
     def check_match(self):
@@ -546,10 +563,10 @@ class Game:
 
         )
         timer = font.render(
-            "Time : " + str(self.time_left),
-            True,
-            (40,40,40)
-        )
+        "Time : " + str(self.elapsed_time) + " s",
+        True,
+        (40,40,40)
+    )
         self.screen.blit(
             timer,
             (40,200)
