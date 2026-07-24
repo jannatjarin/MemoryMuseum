@@ -1,8 +1,10 @@
 import pygame
 import random
+import json
 
 from card import Card
 from painting import Painting
+
 
 
 class Game:
@@ -63,6 +65,12 @@ class Game:
         self.start_time = 0
 
         self.elapsed_time = 0
+
+        with open("scores.json", "r") as file:
+
+            self.scores = json.load(file)
+
+        self.new_record = False
 
         #welcome screen buttons
         self.start_button = pygame.Rect(350, 250, 300, 60)
@@ -213,6 +221,7 @@ class Game:
 
         self.initialize_cards()
         self.start_time = pygame.time.get_ticks()
+        self.new_record = False
 
 
     def start(self):
@@ -361,15 +370,39 @@ class Game:
             self.score += 10
             self.painting.restore_part()
 
-            if self.painting.is_completed():
-                self.game_completed = True
+        if self.painting.is_completed():
 
-                if self.current_level == self.unlocked_levels:
+            self.game_completed = True
 
-                    if self.unlocked_levels < 5:
-                        self.unlocked_levels += 1
+            level = str(self.current_level)
 
-                self.current_screen = "complete"
+            self.new_record = False
+
+            best_attempts = self.scores[level]["attempts"]
+
+            best_time = self.scores[level]["time"]
+
+            if best_attempts is None or self.attempts < best_attempts:
+
+                self.scores[level]["attempts"] = self.attempts
+
+                self.new_record = True
+
+            if best_time is None or self.elapsed_time < best_time:
+
+                self.scores[level]["time"] = self.elapsed_time
+
+                self.new_record = True
+
+            self.save_scores()
+
+            if self.current_level == self.unlocked_levels:
+
+                if self.unlocked_levels < 5:
+
+                    self.unlocked_levels += 1
+
+            self.current_screen = "complete"
 
         else:
             first.hide()
@@ -378,6 +411,21 @@ class Game:
 
         self.selected_cards.clear()
         self.waiting = False
+
+
+    def save_scores(self):
+
+        with open("scores.json", "w") as file:
+
+            json.dump(
+
+                self.scores,
+
+                file,
+
+                indent=4
+
+            )
 
 
     def draw(self):
@@ -506,136 +554,72 @@ class Game:
 
         self.screen.blit(text, (50, 35))
 
-    def draw_game_screen(self):
-        title_font = pygame.font.SysFont(None, 50)
+    def draw_complete_screen(self):
+
+        title_font = pygame.font.SysFont(None, 60)
+
         title = title_font.render(
-        "Level " + str(self.painting.get_level()),
-        True,
-        (50,50,50)
-        )
-        
-        font = pygame.font.SysFont(None, 30)
-
-        painting_text = font.render(
-
-            self.painting.get_name(),
-
+            "Congratulations!",
             True,
-
-            (60,60,60)
-
+            (40, 40, 40)
         )
 
-        self.screen.blit(
+        self.screen.blit(title, (300, 120))
 
-            painting_text,
+        font = pygame.font.SysFont(None, 35)
 
-            (410,70)
-
-        )
-        font = pygame.font.SysFont(
-
-            None,
-
-            30
-
-        )
-
-        score = font.render(
-
-            "Score : " + str(self.score),
-
+        message = font.render(
+            "You completed the painting!",
             True,
-
-            (40,40,40)
-
+            (60, 60, 60)
         )
 
-        attempts = font.render(
+        self.screen.blit(message, (300, 200))
 
-            "Attempts : " + str(self.attempts),
-
+        time_taken = font.render(
+            "Time : " + str(self.elapsed_time) + " seconds",
             True,
-
-            (40,40,40)
-
+            (60, 60, 60)
         )
 
-        matches = font.render(
+        self.screen.blit(
+            time_taken,
+            (360, 250)
+        )
 
-            "Matches : " + str(self.matches),
+        if self.new_record:
 
+            record_font = pygame.font.SysFont(None, 45)
+
+            record_text = record_font.render(
+                "NEW RECORD!",
+                True,
+                (200, 50, 50)
+            )
+
+            self.screen.blit(
+                record_text,
+                (365, 300)
+            )
+
+        pygame.draw.rect(
+            self.screen,
+            (90, 120, 80),
+            self.next_button,
+            border_radius=10
+        )
+
+        text = font.render(
+            "Next Level",
             True,
-
-            (40,40,40)
-
-        )
-        timer = font.render(
-        "Time : " + str(self.elapsed_time) + " s",
-        True,
-        (40,40,40)
-    )
-        self.screen.blit(
-            timer,
-            (40,200)
-
-        )
-        self.screen.blit(
-
-            score,
-
-            (40,80)
-
+            (255, 255, 255)
         )
 
-        self.screen.blit(
-
-            attempts,
-
-            (40,120)
-
+        text_rect = text.get_rect(
+            center=self.next_button.center
         )
 
-        self.screen.blit(
-
-            matches,
-
-            (40,160)
-
-        )
-        progress = pygame.font.SysFont(None,30)
-
-        text = progress.render(
-
-            "Painting : "
-            +
-            str(self.painting.get_progress())
-            + "/8",
-
-            True,
-
-            (40,40,40)
-
-        )
-
-        self.screen.blit(
-
-            text,
-
-            (40,240)
-
-        )  
-
-        self.screen.blit(title,(430, 20))
-
-        
-               
-
-        for card in self.cards:
-
-            card.draw(self.screen)
-
-        self.draw_back_button()
+        self.screen.blit(text, text_rect)
 
 
 
@@ -672,8 +656,34 @@ class Game:
 
     (360,250)
 
+
+
+    if self.new_record:
+    
+        record_font = pygame.font.SysFont(None, 45)
+    
+        record_text = record_font.render(
+    
+             "NEW RECORD!",
+    
+            True,
+    
+            (200, 50, 50)
+    
+        )
+    
+        self.screen.blit(
+    
+            record_text,
+    
+            (365, 300)
+    
+        )
+    
+
 )
 
+        
 
         pygame.draw.rect(
 
