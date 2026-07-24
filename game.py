@@ -539,14 +539,15 @@ class Game:
             (40,40,40)
 
         )
-        time_text = font.render(
-            "Time : " + str(self.elapsed_time) + " s",
-             True,
-             (40,40,40)
-             )
+        timer = font.render(
+            "Time : " + str(self.time_left),
+            True,
+            (40,40,40)
+        )
         self.screen.blit(
-            time_text,
+            timer,
             (40,200)
+
         )
         self.screen.blit(
 
@@ -605,19 +606,6 @@ class Game:
 
         self.draw_back_button()
 
-        timer = font.render(
-
-            "Time : " + str(self.time_left),
-            True,
-            (40,40,40)
-        )
-
-        self.screen.blit(
-
-            timer,
-            
-            (40,240)
-        )
 
 
     def draw_complete_screen(self):
