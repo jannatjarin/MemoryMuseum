@@ -1,4 +1,5 @@
 import pygame
+import random
 
 from card import Card
 from painting import Painting
@@ -73,7 +74,7 @@ class Game:
         self.back_button = pygame.Rect(20, 20, 120, 50)
 
     def initialize_cards(self):
-        card.set_image(None)
+        
 
         self.cards = []
 
@@ -88,6 +89,8 @@ class Game:
             8,8,
             
         ]
+        random.shuffle(card_names)
+        
 
 
         start_x = 180
