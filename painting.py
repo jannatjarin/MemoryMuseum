@@ -52,6 +52,8 @@ class Painting:
 
             self.restored_parts += 1
 
+        print("Progress:", self.restored_parts)
+
     def get_progress(self):
 
         return self.restored_parts

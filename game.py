@@ -324,6 +324,12 @@ class Game:
 
                 self.selected_cards.append(card)
 
+                if len(self.selected_cards) == 2:
+
+                    self.waiting = True
+
+                    self.wait_start = pygame.time.get_ticks()
+
                 break
 
     def update(self):
@@ -346,6 +352,8 @@ class Game:
     def check_match(self):
         first = self.selected_cards[0]
         second = self.selected_cards[1]
+
+        print("Checking", first.get_name(), second.get_name())
         if first.get_name() == second.get_name():
             first.match()
             second.match()
