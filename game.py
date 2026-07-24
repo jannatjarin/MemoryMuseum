@@ -52,6 +52,8 @@ class Game:
         self.matches = 0
         self.attempts = 0
         self.score = 0
+        self.time_limit = 120
+        self.time_left = self.time_limit
         self.start_time = 0
 
         self.elapsed_time = 0
@@ -205,9 +207,13 @@ class Game:
         self.painting.reset()
 
         self.initialize_cards()
+        self.start_time = pygame.time.get_ticks()
+        self.time_left = self.time_limit
+
 
     def start(self):
         self.initialize_cards()
+        self.start_time = pygame.time.get_ticks()
         while self.running:
             self.handle_events()
             self.update()
@@ -299,16 +305,20 @@ class Game:
 
     def update(self):
 
+        elapsed = (pygame.time.get_ticks() - self.start_time) // 1000
+        self.time_left = self.time_limit - elapsed
+
+        if self.time_left < 0:
+            self.time_left = 0
+
         if len(self.selected_cards) == 2:
             self.check_match()
+
             if self.current_screen == "game":
                  self.elapsed_time = (
                      pygame.time.get_ticks()
                      - self.start_time
                        ) // 1000
-
-
-
 
 
     def check_match(self):
@@ -594,6 +604,20 @@ class Game:
             card.draw(self.screen)
 
         self.draw_back_button()
+
+        timer = font.render(
+
+            "Time : " + str(self.time_left),
+            True,
+            (40,40,40)
+        )
+
+        self.screen.blit(
+
+            timer,
+            
+            (40,240)
+        )
 
 
     def draw_complete_screen(self):
