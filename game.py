@@ -87,8 +87,9 @@ class Game:
             if data["time"] is not None:
 
                 self.completed_levels.add(int(level))
-
-        self.new_record = False
+                if len(self.completed_levels) > 0:
+                    self.unlocked_levels = min(max(self.completed_levels) + 1, 5)
+                    self.new_record = False
 
         #welcome screen buttons
         self.start_button = pygame.Rect(350, 250, 300, 60)
