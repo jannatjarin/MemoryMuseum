@@ -80,15 +80,10 @@ class Game:
 
         self.completed_levels = set()
 
-        for level in self.scores:
 
-            data = self.scores[level]
-
-            if data["time"] is not None:
-
-                self.completed_levels.add(int(level))
-
-        self.new_record = False
+        #locked level click feedback
+        self.lock_message_time = 0
+        self.lock_message_duration = 1200
 
         #welcome screen buttons
         self.start_button = pygame.Rect(350, 250, 300, 60)
@@ -258,7 +253,8 @@ class Game:
 
                                 #locked level
                                 if i + 1 > self.unlocked_levels:
-                                    return
+                                    self.lock_message_time = pygame.time.get_ticks()
+                                    break
 
                                 self.current_level = i + 1
 
@@ -271,6 +267,7 @@ class Game:
                                 self.elapsed_time = 0
 
                                 self.current_screen = "game"
+                                break
 
                 #game scrren
 
@@ -727,6 +724,24 @@ class Game:
             )
 
             self.screen.blit(label,rect)
+
+        time_since_click = pygame.time.get_ticks() - self.lock_message_time
+
+        if time_since_click < self.lock_message_duration:
+
+            message_font = pygame.font.SysFont(None, 60)
+
+            message = message_font.render(
+                "That level is locked!",
+                True,
+                (255, 255, 255)
+            )
+
+            message_rect = message.get_rect(
+                center=(self.width // 2, 640)
+            )
+
+            self.screen.blit(message, message_rect)
         self.draw_back_button()
 
 
@@ -815,7 +830,7 @@ class Game:
                 (0, 128, 0)
             )
 
-            record_rect = record_text.get_rect(center=(self.width // 2, 420))
+            record_rect = record_text.get_rect(center=(self.width // 2, 600))
             self.screen.blit(record_text, record_rect)
 
         pygame.draw.rect(
