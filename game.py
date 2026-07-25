@@ -269,7 +269,7 @@ class Game:
                                 self.current_screen = "game"
                                 break
 
-                #game scrren
+                #game screen
 
                 elif self.current_screen == "game":
 
