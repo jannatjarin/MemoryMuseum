@@ -45,10 +45,6 @@ class Painting:
 
             self.restored_parts += 1
 
-    def get_progress(self):
-
-        return self.restored_parts
-
     def is_completed(self):
 
         return self.restored_parts == self.total_parts
@@ -60,14 +56,6 @@ class Painting:
     def get_name(self):
 
         return self.painting_name
-
-    def get_image_file(self):
-
-        return self.image_file
-
-    def get_level(self):
-
-        return self.current_level
 
     def load_image(self):
 

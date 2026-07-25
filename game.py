@@ -12,38 +12,32 @@ class Game:
 
     def __init__(self):
 
+        #screen/level state
         self.current_screen = 'welcome'
         self.current_level = 1
         self.painting = Painting()
         self.painting.load_level(self.current_level)
-
         self.unlocked_levels = 1
 
-        self.completed_levels = set()
-
-        self.next_button = pygame.Rect(
-            350,
-            450,
-            300,
-            60
-        )
+        #next level button
+        self.next_button = pygame.Rect(350, 450,300, 60)
 
         pygame.init()
 
+        #window setup
         self.width = 1000
         self.height = 700
         self.title = "Memory Museum"
-
         self.background_color = (230, 225, 215)
 
         self.screen = pygame.display.set_mode(
         (self.width, self.height)
-)
+        )
 
+        #background images
         self.welcome_background = self.load_background("welcome_screen.jpg")
         self.levels_background = self.load_background("level_screen.jpg")
             
-
         pygame.display.set_caption(self.title)
 
         self.clock = pygame.time.Clock()
@@ -51,23 +45,22 @@ class Game:
 
         self.running = True
 
+        #card matching state
         self.cards = []
         self.card_images = []
         self.selected_cards = []
         self.waiting = False
 
-        self.matches = 0
         self.attempts = 0
-        self.score = 0
 
         self.wait_start = 0
-
         self.wait_time = 700
 
+        #timer state
         self.start_time = 0
-
         self.elapsed_time = 0
 
+        #load scores from file, handle missing/corrupted file
         try:
 
             with open("scores.json", "r") as file:
@@ -85,6 +78,15 @@ class Game:
                 }
                 self.save_scores()
 
+        self.completed_levels = set()
+
+        for level in self.scores:
+
+            data = self.scores[level]
+
+            if data["time"] is not None:
+
+                self.completed_levels.add(int(level))
 
         self.new_record = False
 
@@ -141,16 +143,9 @@ class Game:
                 )
 
                 self.card_images.append(piece)
+                self.card_images.append(piece)
 
-        duplicate_images = []
-
-        for piece in self.card_images:
-
-            duplicate_images.append(piece)
-            duplicate_images.append(piece)
-
-        self.card_images = duplicate_images
-
+    #8 pairs suffle
     def initialize_cards(self):
         self.cards = []
         self.create_card_images()
@@ -166,6 +161,7 @@ class Game:
 
         random.shuffle(self.cards)
 
+        #4x4 grid
         card_size = 120
         gap = 20
         grid_width = 4 * card_size + 3 * gap
@@ -181,13 +177,12 @@ class Game:
                 self.cards[index].y = start_y + row * (card_size + gap)
                 index += 1
 
+    #reset game
     def reset_game(self):
 
         self.selected_cards = []
 
-        self.matches = 0
         self.attempts = 0
-        self.score = 0
 
         self.waiting = False
 
@@ -251,8 +246,6 @@ class Game:
 
                     if self.back_button.collidepoint(mouse):
 
-                        print("Level clicked")
-
                         self.current_screen = "welcome"
 
                     else:
@@ -273,17 +266,9 @@ class Game:
 
                                 self.painting.load_image()
 
-                                self.initialize_cards()
-
-                                self.start_time = pygame.time.get_ticks()
+                                self.reset_game()
 
                                 self.elapsed_time = 0
-
-                                self.attempts = 0
-                                self.matches = 0
-                                self.score = 0
-                                self.selected_cards = []
-                                self.waiting = False
 
                                 self.current_screen = "game"
 
@@ -297,9 +282,9 @@ class Game:
 
 
                     #test button
-                    elif self.test_button.collidepoint(mouse):
+                    # elif self.test_button.collidepoint(mouse):
 
-                        self.test_complete_level()
+                    #     self.test_complete_level()
 
                     else:
 
@@ -346,7 +331,7 @@ class Game:
                             
 
     def select_card(self, mouse):
-
+    #flips card
         if self.waiting:
             return
 
@@ -359,14 +344,6 @@ class Game:
                     return
 
                 if card.get_flipped():
-
-                    return
-
-                if len(self.selected_cards) == 2:
-
-                    self.waiting = True
-
-                    self.wait_start = pygame.time.get_ticks()
 
                     return
 
@@ -404,15 +381,10 @@ class Game:
         first = self.selected_cards[0]
         second = self.selected_cards[1]
 
-        print("Checking", first.get_name(), second.get_name())
-
         if first.get_name() == second.get_name():
 
             first.match()
             second.match()
-
-            self.matches += 1
-            self.score += 10
 
             self.painting.restore_part()
 
@@ -421,11 +393,11 @@ class Game:
 
                 self.completed_levels.add(self.current_level)
 
-                print("Completed levels so far:", self.completed_levels)
-
                 level = str(self.current_level)
 
                 self.new_record = False
+
+                #updates best score
 
                 best_attempts = self.scores[level]["attempts"]
                 best_time = self.scores[level]["time"]
@@ -442,6 +414,7 @@ class Game:
 
                 self.save_scores()
 
+                #unlock next level
                 if self.current_level == self.unlocked_levels:
 
                     if self.unlocked_levels < 5:
@@ -602,7 +575,8 @@ class Game:
             best_attempts_text = "-"
 
         stat_cards = [
-           
+
+            ("Levels Finished", str(len(self.completed_levels)) + " / 5"),
             ("Total Time Played", str(stats["total_time"]) + " s"),
             ("Total Attempts", str(stats["total_attempts"])),
             ("Best Time", best_time_text),
@@ -671,9 +645,9 @@ class Game:
     def draw_welcome_screen(self):
         #title
 
-        self.title_font_name = "Castellar"
+        title_font_name = "Castellar"
 
-        title_font = pygame.font.SysFont(self.title_font_name, 65)
+        title_font = pygame.font.SysFont(title_font_name, 65)
 
         title = title_font.render("Memory Museum", True,(60, 40, 20))
 
@@ -714,9 +688,9 @@ class Game:
 
     def draw_level_screen(self):
 
-        self.level_font_name = "Felix Titling"
+        level_font_name = "Felix Titling"
 
-        title_font = pygame.font.SysFont(self.level_font_name,55)
+        title_font = pygame.font.SysFont(level_font_name,55)
 
         title = title_font.render("Select Level", True,(255, 255, 255))
 
@@ -1048,27 +1022,27 @@ class Game:
 
         self.screen.blit(time_text, time_rect)
 
-        #test button
-        pygame.draw.rect(
-            self.screen,
-            (180, 40, 40),
-            self.test_button,
-            border_radius=8
-        )
+        # #test button
+        # pygame.draw.rect(
+        #     self.screen,S
+        #     (180, 40, 40),
+        #     self.test_button,
+        #     border_radius=8
+        # )
 
-        test_font = pygame.font.SysFont(None, 26)
+        # test_font = pygame.font.SysFont(None, 26)
 
-        test_label = test_font.render(
-            "TEST",
-            True,
-            (255, 255, 255)
-        )
+        # test_label = test_font.render(
+        #     "TEST",
+        #     True,
+        #     (255, 255, 255)
+        # )
 
-        test_rect = test_label.get_rect(
-            center=self.test_button.center
-        )
+        # test_rect = test_label.get_rect(
+        #     center=self.test_button.center
+        # )
 
-        self.screen.blit(test_label, test_rect)
+        # self.screen.blit(test_label, test_rect)
 
         self.draw_back_button()
 
