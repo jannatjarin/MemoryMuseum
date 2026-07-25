@@ -1,22 +1,22 @@
 {
     "1": {
-        "attempts": 23,
-        "time": 46
+        "attempts": 19,
+        "time": 36
     },
     "2": {
-        "attempts": null,
-        "time": null
+        "attempts": 15,
+        "time": 28
     },
     "3": {
-        "attempts": null,
-        "time": null
+        "attempts": 28,
+        "time": 48
     },
     "4": {
-        "attempts": null,
-        "time": null
+        "attempts": 25,
+        "time": 46
     },
     "5": {
-        "attempts": null,
-        "time": null
+        "attempts": 14,
+        "time": 24
     }
 }

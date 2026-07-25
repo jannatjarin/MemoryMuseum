@@ -1,5 +1,16 @@
 import pygame
 
+
+LEVELS = {
+ 
+    1: ("Starry Night", "starry_night.jpg"),
+    2: ("Mona Lisa", "mona_lisa.jpg"),
+    3: ("The Scream", "the_scream.jpg"),
+    4: ("Girl with a Pearl Earring", "girl_with_pearl.jpg"),
+    5: ("The Weeping Woman", "the_weeping_woman.jpg"),
+ 
+}
+
 class Painting:
 
     def __init__(self):
@@ -21,30 +32,12 @@ class Painting:
 
         self.restored_parts = 0
 
-        if level == 1:
-
-            self.painting_name = "Starry Night"
-            self.image_file = "starry_night.jpg"
-
-        elif level == 2:
-
-            self.painting_name = "Mona Lisa"
-            self.image_file = "mona_lisa.jpg"
-
-        elif level == 3:
-
-            self.painting_name = "The Scream"
-            self.image_file = "the_scream.jpg"
-
-        elif level == 4:
-
-            self.painting_name = "Girl with a Pearl Earring"
-            self.image_file = "girl_with_pearl.jpg"
-
-        elif level == 5:
-
-            self.painting_name = "The Weeping Memory"
-            self.image_file = "the_weeping_woman.jpg"
+        if level in LEVELS:
+ 
+            name, image_file = LEVELS[level]
+ 
+            self.painting_name = name
+            self.image_file = image_file
 
     def restore_part(self):
 
@@ -80,4 +73,14 @@ class Painting:
 
         image_path = "assets/images/" + self.image_file
 
-        self.image = pygame.image.load(image_path)
+        try:
+
+            self.image = pygame.image.load(image_path)
+
+        except pygame.error:
+
+            print("Could not load image:", image_path)
+
+            self.image = pygame.Surface((400, 200))
+
+            self.image.fill((200, 0, 0))

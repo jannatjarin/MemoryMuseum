@@ -1,6 +1,7 @@
 import pygame
 import random
 import json
+import numpy as np
 
 from card import Card
 from painting import Painting
@@ -20,6 +21,8 @@ class Game:
 
         self.unlocked_levels = 1
         self.game_completed = False
+
+        self.completed_levels = set()
 
         self.next_button = pygame.Rect(
             350,
@@ -56,8 +59,6 @@ class Game:
         self.attempts = 0
         self.score = 0
 
-        self.waiting = False
-
         self.wait_start = 0
 
         self.wait_time = 700
@@ -66,9 +67,23 @@ class Game:
 
         self.elapsed_time = 0
 
-        with open("scores.json", "r") as file:
+        try:
 
-            self.scores = json.load(file)
+            with open("scores.json", "r") as file:
+
+                self.scores = json.load(file)
+
+        except (FileNotFoundError, ValueError):
+                print("scores.json missing or corrupted. Creating a new one.")
+                self.scores = {
+                    "1": {"attempts": None, "time": None},
+                    "2": {"attempts": None, "time": None},
+                    "3": {"attempts": None, "time": None},
+                    "4": {"attempts": None, "time": None},
+                    "5": {"attempts": None, "time": None},
+                }
+                self.save_scores()
+
 
         self.new_record = False
 
@@ -133,80 +148,29 @@ class Game:
         self.card_images = duplicate_images
 
     def initialize_cards(self):
-
         self.cards = []
-
         self.create_card_images()
 
-        card_names = [
-            1,1,
-            2,2,
-            3,3,
-            4,4,
-            5,5,
-            6,6,
-            7,7,
-            8,8,
-            
-        ]
-        
+        card_names = [1,1, 2,2, 3,3, 4,4, 5,5, 6,6, 7,7, 8,8]
 
-
-        start_x = 180
-
-        start_y = 120
-
-        
-
-        card_width = 120
-
-        card_height = 120
-
-        gap = 20
-
-        index = 0
-
-        for row in range(4):
-
-            for column in range(4):
-
-                x = start_x + column * (card_width + gap)
-
-                y = start_y + row * (card_height + gap)
-
-                card = Card(card_names[index])
-                card.x = x
-                card.y = y
-                card.width = card_width
-                card.height = card_height
-                card.set_image(
-
-                    self.card_images[index]
-
-                )
-
-                self.cards.append(card)
-
-                index += 1
-
-        import random
+        for index in range(16):
+            card = Card(card_names[index])
+            card.set_image(self.card_images[index])
+            card.width = 120
+            card.height = 120
+            self.cards.append(card)
 
         random.shuffle(self.cards)
 
+        start_x = 180
+        start_y = 120
+        gap = 20
         index = 0
 
         for row in range(4):
-
             for column in range(4):
-
-                x = start_x + column * (card_width + gap)
-
-                y = start_y + row * (card_height + gap)
-
-                self.cards[index].x = x
-
-                self.cards[index].y = y
-
+                self.cards[index].x = start_x + column * (120 + gap)
+                self.cards[index].y = start_y + row * (120 + gap)
                 index += 1
 
     def reset_game(self):
@@ -267,6 +231,10 @@ class Game:
 
                         self.current_screen = "how"
 
+                    elif self.player_button.collidepoint(mouse):
+
+                        self.current_screen = "statistics"
+
                 #level select screen
 
                 elif self.current_screen == "levels":
@@ -279,7 +247,9 @@ class Game:
 
                     else:
 
-                        for i, button in enumerate(self.level_buttons):
+                        for i in range(len(self.level_buttons)):
+
+                            button = self.level_buttons[i]
 
                             if button.collidepoint(mouse):
 
@@ -324,6 +294,13 @@ class Game:
                 #how to play scrren
 
                 elif self.current_screen == "how":
+
+                    if self.back_button.collidepoint(mouse):
+
+                        self.current_screen = "welcome"
+
+
+                elif self.current_screen == "statistics":
 
                     if self.back_button.collidepoint(mouse):
 
@@ -421,6 +398,10 @@ class Game:
 
                 self.game_completed = True
 
+                self.completed_levels.add(self.current_level)
+
+                print("Completed levels so far:", self.completed_levels)
+
                 level = str(self.current_level)
 
                 self.new_record = False
@@ -454,24 +435,26 @@ class Game:
 
         self.attempts += 1
 
-        self.selected_cards.clear()
+        self.selected_cards = []
 
         self.waiting = False
 
 
     def save_scores(self):
 
-        with open("scores.json", "w") as file:
+        try:
 
-            json.dump(
+            with open("scores.json", "w") as file:
 
-                self.scores,
+                json.dump(
+                    self.scores,
+                    file,
+                    indent=4
+                )
 
-                file,
+        except OSError:
 
-                indent=4
-
-            )
+            print("Could not save scores. Check file permissions.")
 
 
     def draw(self):
@@ -495,6 +478,124 @@ class Game:
 
         elif self.current_screen == "how":
             self.draw_how_screen()
+
+        elif self.current_screen == "statistics":
+            self.draw_statistics_screen()
+
+
+    def calculate_statistics(self):
+
+        times = []
+        attempts = []
+
+        for level in self.scores:
+
+            data = self.scores[level]
+
+            if data["time"] is not None:
+
+                times.append(data["time"])
+
+            if data["attempts"] is not None:
+
+                attempts.append(data["attempts"])
+
+        levels_finished = len(times)
+
+        if levels_finished > 0:
+
+            total_time = int(np.sum(times))
+            average_time = float(np.mean(times))
+            average_time = int(average_time * 10) / 10
+            best_time = int(np.min(times))
+
+            total_attempts = int(np.sum(attempts))
+            average_attempts = float(np.mean(attempts))
+            average_attempts = int(average_attempts * 10) / 10
+            best_attempts = int(np.min(attempts))
+
+        else:
+
+            total_time = 0
+            average_time = 0
+            best_time = None
+
+            total_attempts = 0
+            average_attempts = 0
+            best_attempts = None
+
+        stats = {
+
+            "levels_finished": levels_finished,
+            "total_time": total_time,
+            "average_time": average_time,
+            "best_time": best_time,
+            "total_attempts": total_attempts,
+            "average_attempts": average_attempts,
+            "best_attempts": best_attempts,
+
+        }
+
+        return stats
+
+
+    def draw_statistics_screen(self):
+
+        stats = self.calculate_statistics()
+
+        title_font = pygame.font.SysFont(None, 60)
+
+        title = title_font.render(
+            "Statistics",
+            True,
+            (40, 40, 40)
+        )
+
+        self.screen.blit(title, (380, 50))
+
+        font = pygame.font.SysFont(None, 34)
+
+        if stats["levels_finished"] > 0:
+
+            best_time_text = str(stats["best_time"]) + " s"
+            best_attempts_text = str(stats["best_attempts"])
+
+        else:
+
+            best_time_text = "-"
+            best_attempts_text = "-"
+
+        lines = [
+
+            "Levels completed: " + str(stats["levels_finished"]) + " / 5",
+
+            "Unique levels finished: " + str(len(self.completed_levels)),
+
+            "Total time played: " + str(stats["total_time"]) + " s",
+
+            "Average time: " + str(stats["average_time"]) + " s",
+
+            "Best time: " + best_time_text,
+
+            "Total attempts: " + str(stats["total_attempts"]),
+
+            "Average attempts: " + str(stats["average_attempts"]),
+
+            "Best attempts: " + best_attempts_text,
+
+        ]
+
+        y = 160
+
+        for line in lines:
+
+            text = font.render(line, True, (60, 60, 60))
+
+            self.screen.blit(text, (220, y))
+
+            y += 50
+
+        self.draw_back_button()
 
 
     def draw_welcome_screen(self):
@@ -527,6 +628,8 @@ class Game:
 
             (self.score_button, "Best score"),
 
+            (self.player_button, "Statistics")
+
         ]
 
         for button, text in buttons:
@@ -556,7 +659,9 @@ class Game:
 
         button_font = pygame.font.SysFont(None,36)
 
-        for i, button in enumerate(self.level_buttons):
+        for i in range(len(self.level_buttons)):
+
+            button = self.level_buttons[i]
 
             if i + 1 <= self.unlocked_levels:
                 color = (100,100,150)
@@ -713,7 +818,16 @@ class Game:
 
         for i in range(1,6):
 
-            data = self.scores[str(i)]
+            level_key = str(i)
+
+            if level_key in self.scores:
+
+                data = self.scores[level_key]
+
+            else:
+
+                data = {"attempts": None, "time": None}
+
 
             if data["attempts"] is None:
 
