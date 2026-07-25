@@ -12,15 +12,12 @@ class Game:
 
     def __init__(self):
 
-        self.current_screen = "welcome"
+        self.current_screen = 'welcome'
         self.current_level = 1
         self.painting = Painting()
         self.painting.load_level(self.current_level)
 
-        self.painting.load_image()
-
         self.unlocked_levels = 1
-        self.game_completed = False
 
         self.completed_levels = set()
 
@@ -40,8 +37,12 @@ class Game:
         self.background_color = (230, 225, 215)
 
         self.screen = pygame.display.set_mode(
-            (self.width, self.height)
-        )
+        (self.width, self.height)
+)
+
+        self.welcome_background = self.load_background("welcome_screen.jpg")
+        self.levels_background = self.load_background("level_screen.jpg")
+            
 
         pygame.display.set_caption(self.title)
 
@@ -109,6 +110,9 @@ class Game:
         #back button
         self.back_button = pygame.Rect(20, 20, 120, 50)
 
+        #test button
+        self.test_button = pygame.Rect(860, 640, 120, 40)
+
     def create_card_images(self):
 
         self.card_images = []
@@ -162,15 +166,19 @@ class Game:
 
         random.shuffle(self.cards)
 
-        start_x = 180
-        start_y = 120
+        card_size = 120
         gap = 20
+        grid_width = 4 * card_size + 3 * gap
+
+        start_x = (self.width - grid_width) // 2
+        start_y = 140
+
         index = 0
 
         for row in range(4):
             for column in range(4):
-                self.cards[index].x = start_x + column * (120 + gap)
-                self.cards[index].y = start_y + row * (120 + gap)
+                self.cards[index].x = start_x + column * (card_size + gap)
+                self.cards[index].y = start_y + row * (card_size + gap)
                 index += 1
 
     def reset_game(self):
@@ -180,6 +188,8 @@ class Game:
         self.matches = 0
         self.attempts = 0
         self.score = 0
+
+        self.waiting = False
 
         self.painting.reset()
 
@@ -269,6 +279,12 @@ class Game:
 
                                 self.elapsed_time = 0
 
+                                self.attempts = 0
+                                self.matches = 0
+                                self.score = 0
+                                self.selected_cards = []
+                                self.waiting = False
+
                                 self.current_screen = "game"
 
                 #game scrren
@@ -279,11 +295,17 @@ class Game:
 
                         self.current_screen = "levels"
 
+
+                    #test button
+                    elif self.test_button.collidepoint(mouse):
+
+                        self.test_complete_level()
+
                     else:
 
                         self.select_card(mouse)
 
-                #scrreboard screen
+                #scoreboard screen
 
                 elif self.current_screen == "scoreboard":
 
@@ -396,7 +418,6 @@ class Game:
 
             if self.painting.is_completed():
 
-                self.game_completed = True
 
                 self.completed_levels.add(self.current_level)
 
@@ -459,7 +480,14 @@ class Game:
 
     def draw(self):
 
-        self.screen.fill(self.background_color)
+        if self.current_screen == "welcome" and self.welcome_background is not None:
+            self.screen.blit(self.welcome_background, (0, 0))
+
+        elif self.current_screen == "levels" and self.levels_background is not None:
+            self.screen.blit(self.levels_background, (0, 0))
+
+        else:
+            self.screen.fill(self.background_color)
 
         if self.current_screen == "welcome":
             self.draw_welcome_screen()
@@ -543,6 +571,7 @@ class Game:
 
         stats = self.calculate_statistics()
 
+        #title
         title_font = pygame.font.SysFont(None, 60)
 
         title = title_font.render(
@@ -551,49 +580,90 @@ class Game:
             (40, 40, 40)
         )
 
-        self.screen.blit(title, (380, 50))
+        title_rect = title.get_rect(center=(self.width // 2, 55))
+        self.screen.blit(title, title_rect)
 
-        font = pygame.font.SysFont(None, 34)
+        subtitle_font = pygame.font.SysFont(None, 26)
+
+        subtitle = subtitle_font.render(
+            "Your progress across all levels",
+            True,
+            (110, 100, 90)
+        )
+
+        subtitle_rect = subtitle.get_rect(center=(self.width // 2, 90))
+        self.screen.blit(subtitle, subtitle_rect)
 
         if stats["levels_finished"] > 0:
-
             best_time_text = str(stats["best_time"]) + " s"
             best_attempts_text = str(stats["best_attempts"])
-
         else:
-
             best_time_text = "-"
             best_attempts_text = "-"
 
-        lines = [
-
-            "Levels completed: " + str(stats["levels_finished"]) + " / 5",
-
-            "Unique levels finished: " + str(len(self.completed_levels)),
-
-            "Total time played: " + str(stats["total_time"]) + " s",
-
-            "Average time: " + str(stats["average_time"]) + " s",
-
-            "Best time: " + best_time_text,
-
-            "Total attempts: " + str(stats["total_attempts"]),
-
-            "Average attempts: " + str(stats["average_attempts"]),
-
-            "Best attempts: " + best_attempts_text,
-
+        stat_cards = [
+           
+            ("Total Time Played", str(stats["total_time"]) + " s"),
+            ("Total Attempts", str(stats["total_attempts"])),
+            ("Best Time", best_time_text),
+            ("Best Attempts", best_attempts_text),
+            ("Average Time", str(stats["average_time"]) + " s"),
+            ("Average Attempts", str(stats["average_attempts"])),
         ]
 
-        y = 160
+        columns = 2
+        card_width = 440
+        card_height = 100
+        gap_x = 20
+        gap_y = 20
 
-        for line in lines:
+        grid_width = columns * card_width + gap_x
+        start_x = (self.width - grid_width) // 2
+        start_y = 130
 
-            text = font.render(line, True, (60, 60, 60))
+        label_font = pygame.font.SysFont(None, 26)
+        value_font = pygame.font.SysFont(None, 42)
 
-            self.screen.blit(text, (220, y))
+        for index in range(len(stat_cards)):
 
-            y += 50
+            label, value = stat_cards[index]
+
+            row = index // columns
+            column = index % columns
+
+            card_x = start_x + column * (card_width + gap_x)
+            card_y = start_y + row * (card_height + gap_y)
+
+            card_rect = pygame.Rect(card_x, card_y, card_width, card_height)
+
+            #card background
+            pygame.draw.rect(
+                self.screen,
+                (250, 247, 240),
+                card_rect,
+                border_radius=12
+            )
+
+            #card border accent
+            pygame.draw.rect(
+                self.screen,
+                (196, 148, 62),
+                card_rect,
+                width=2,
+                border_radius=12
+            )
+
+            label_text = label_font.render(label, True, (120, 105, 90))
+            label_rect = label_text.get_rect(
+                center=(card_rect.centerx, card_rect.y + 28)
+            )
+            self.screen.blit(label_text, label_rect)
+
+            value_text = value_font.render(value, True, (60, 40, 20))
+            value_rect = value_text.get_rect(
+                center=(card_rect.centerx, card_rect.y + 68)
+            )
+            self.screen.blit(value_text, value_rect)
 
         self.draw_back_button()
 
@@ -601,22 +671,15 @@ class Game:
     def draw_welcome_screen(self):
         #title
 
-        title_font = pygame.font.SysFont(None, 72)
+        self.title_font_name = "Castellar"
+
+        title_font = pygame.font.SysFont(self.title_font_name, 65)
 
         title = title_font.render("Memory Museum", True,(60, 40, 20))
 
-        self.screen.blit(title, (300, 90))
+        self.screen.blit(title, (180, 140))
 
-        #subtitle
-        subtitle_font = pygame.font.SysFont(None,36)
-
-        subtitle = subtitle_font.render(
-            "Explore the world's greatest paintings",
-            True,
-            (90, 80, 70)
-        )
-
-        self.screen.blit(subtitle, (280, 160))
+        
 
         button_font = pygame.font.SysFont(None,36)
 
@@ -651,11 +714,13 @@ class Game:
 
     def draw_level_screen(self):
 
-        title_font = pygame.font.SysFont(None,64)
+        self.level_font_name = "Felix Titling"
 
-        title = title_font.render("Select Level", True,(60, 40, 20))
+        title_font = pygame.font.SysFont(self.level_font_name,55)
 
-        self.screen.blit(title, (340, 50))
+        title = title_font.render("Select Level", True,(255, 255, 255))
+
+        self.screen.blit(title, (320, 65))
 
         button_font = pygame.font.SysFont(None,36)
 
@@ -720,7 +785,21 @@ class Game:
             (40, 40, 40)
         )
 
-        self.screen.blit(title, (300, 120))
+        title_rect = title.get_rect(center=(self.width // 2, 45))
+        self.screen.blit(title, title_rect)
+
+        #show the completed painting
+
+        painting_image = pygame.transform.scale(
+            self.painting.image,
+            (240, 240)
+        )
+
+        image_rect = painting_image.get_rect(
+            center=(self.width // 2, 200)
+        )
+
+        self.screen.blit(painting_image, image_rect)
 
         font = pygame.font.SysFont(None, 35)
 
@@ -730,7 +809,8 @@ class Game:
             (60, 60, 60)
         )
 
-        self.screen.blit(message, (300, 200))
+        message_rect = message.get_rect(center=(self.width // 2, 345))
+        self.screen.blit(message, message_rect)
 
         time_taken = font.render(
             "Time : " + str(self.elapsed_time) + " seconds",
@@ -738,10 +818,18 @@ class Game:
             (60, 60, 60)
         )
 
-        self.screen.blit(
-            time_taken,
-            (360, 250)
+        time_rect = time_taken.get_rect(center=(self.width // 2, 380))
+        self.screen.blit(time_taken, time_rect)
+
+
+        attempts_taken = font.render(
+            "Attempts : " + str(self.attempts),
+            True,
+            (60, 60, 60)
         )
+
+        attempts_rect = attempts_taken.get_rect(center=(self.width // 2, 420))
+        self.screen.blit(attempts_taken, attempts_rect)
 
         if self.new_record:
 
@@ -750,13 +838,11 @@ class Game:
             record_text = record_font.render(
                 "NEW RECORD!",
                 True,
-                (200, 50, 50)
+                (0, 128, 0)
             )
 
-            self.screen.blit(
-                record_text,
-                (365, 300)
-            )
+            record_rect = record_text.get_rect(center=(self.width // 2, 420))
+            self.screen.blit(record_text, record_rect)
 
         pygame.draw.rect(
             self.screen,
@@ -788,98 +874,84 @@ class Game:
             (40, 40, 40)
         )
 
-        self.screen.blit(title, (360, 50))
+        title_rect = title.get_rect(center=(self.width // 2, 55))
+        self.screen.blit(title, title_rect)
 
-        font = pygame.font.SysFont(None, 35)
+        #header bar
+        header_rect = pygame.Rect(180, 130, 640, 50)
 
-        level = font.render(
-            "Level",
-            True,
-            (40,40,40)
+        pygame.draw.rect(
+            self.screen,
+            (120, 90, 60),
+            header_rect,
+            border_radius=10
         )
 
-        attempts = font.render(
-            "Attempts",
-            True,
-            (40,40,40)
-        )
+        header_font = pygame.font.SysFont(None, 30)
 
-        time = font.render(
-            "Time",
-            True,
-            (40,40,40)
-        )
+        level_header = header_font.render("Level", True, (255, 255, 255))
+        self.screen.blit(level_header, (270, 145))
 
-        self.screen.blit(level, (180,150))
-        self.screen.blit(attempts, (420,150))
-        self.screen.blit(time, (700,150))
+        attempts_header = header_font.render("Attempts", True, (255, 255, 255))
+        self.screen.blit(attempts_header, (460, 145))
 
-        y = 220
+        time_header = header_font.render("Time", True, (255, 255, 255))
+        self.screen.blit(time_header, (720, 145))
 
-        for i in range(1,6):
+        #rows
+        font = pygame.font.SysFont(None, 32)
+
+        y = 180
+
+        for i in range(1, 6):
 
             level_key = str(i)
 
             if level_key in self.scores:
-
                 data = self.scores[level_key]
-
             else:
-
                 data = {"attempts": None, "time": None}
 
-
             if data["attempts"] is None:
-
                 attempt_text = "-"
-
             else:
-
                 attempt_text = str(data["attempts"])
 
             if data["time"] is None:
-
                 time_text = "-"
-
             else:
-
                 time_text = str(data["time"]) + " s"
 
-            level_text = font.render(
+            row_rect = pygame.Rect(180, y, 640, 60)
 
-                str(i),
+            if i % 2 == 0:
+                row_color = (250, 247, 240)
+            else:
+                row_color = (240, 235, 224)
 
-                True,
+            pygame.draw.rect(self.screen, row_color, row_rect)
 
-                (40,40,40)
+            level_text = font.render(str(i), True, (60, 40, 20))
+            self.screen.blit(level_text, (280, y + 15))
 
-            )
+            attempt_render = font.render(attempt_text, True, (60, 40, 20))
+            self.screen.blit(attempt_render, (460, y + 15))
 
-            attempt_render = font.render(
+            time_render = font.render(time_text, True, (60, 40, 20))
+            self.screen.blit(time_render, (720, y + 15))
 
-                attempt_text,
+            y += 60
 
-                True,
+        #border around whole table
+        table_rect = pygame.Rect(180, 130, 640, 350)
 
-                (40,40,40)
-
-            )
-
-            time_render = font.render(
-
-                time_text,
-
-                True,
-
-                (40,40,40)
-
-            )
-
-            self.screen.blit(level_text, (200,y))
-            self.screen.blit(attempt_render, (450,y))
-            self.screen.blit(time_render, (710,y))
-
-            y += 70
+        pygame.draw.rect(
+            self.screen,
+            (196, 148, 62),
+            table_rect,
+            width=2,
+            border_radius=8
+        )
 
         self.draw_back_button()
 
@@ -894,74 +966,135 @@ class Game:
             (40, 40, 40)
         )
 
-        self.screen.blit(title, (340, 50))
-
-        font = pygame.font.SysFont(None, 32)
+        title_rect = title.get_rect(center=(self.width // 2, 55))
+        self.screen.blit(title, title_rect)
 
         instructions = [
-
             "1. Choose any unlocked level.",
-
             "2. Click two cards to reveal them.",
-
             "3. Match both pieces of the painting.",
-
             "4. Match all 8 pairs to finish the level.",
-
             "5. Fewer attempts = Better score.",
-
             "6. Faster time = Better record.",
-
             "7. Beat your best score to get NEW RECORD!"
-
         ]
 
-        y = 150
+        font = pygame.font.SysFont(None, 30)
+
+        y = 130
 
         for line in instructions:
 
-            text = font.render(
-                line,
-                True,
-                (50, 50, 50)
+            row_rect = pygame.Rect(150, y, 700, 55)
+
+            pygame.draw.rect(
+                self.screen,
+                (250, 247, 240),
+                row_rect,
+                border_radius=10
             )
 
-            self.screen.blit(
-                text,
-                (120, y)
-            )
+            text = font.render(line, True, (60, 40, 20))
+            self.screen.blit(text, (175, y + 15))
 
-            y += 55
+            y += 65
 
         self.draw_back_button()
 
     def draw_game_screen(self):
 
         for card in self.cards:
-
             card.draw(self.screen)
 
-        font = pygame.font.SysFont(None, 32)
+        #level title, centered at the top
+        title_font = pygame.font.SysFont(None, 48)
 
-        level_text = font.render(
-            "Level " + str(self.current_level),
+        title_text = title_font.render(
+            "Level " + str(self.current_level) + ": " + self.painting.get_name(),
             True,
             (40, 40, 40)
         )
-        self.screen.blit(level_text, (20, 90))
+
+        title_rect = title_text.get_rect(
+            center=(self.width // 2, 45)
+        )
+
+        self.screen.blit(title_text, title_rect)
+
+        #attempts and timer, top right corner
+        font = pygame.font.SysFont(None, 32)
 
         attempts_text = font.render(
             "Attempts: " + str(self.attempts),
             True,
             (40, 40, 40)
         )
-        self.screen.blit(attempts_text, (740, 20))
+
+        attempts_rect = attempts_text.get_rect(
+            topright=(self.width - 20, 20)
+        )
+
+        self.screen.blit(attempts_text, attempts_rect)
 
         time_text = font.render(
             "Time: " + str(self.elapsed_time) + "s",
             True,
             (40, 40, 40)
         )
-        self.screen.blit(time_text, (740, 60))
+
+        time_rect = time_text.get_rect(
+            topright=(self.width - 20, 55)
+        )
+
+        self.screen.blit(time_text, time_rect)
+
+        #test button
+        pygame.draw.rect(
+            self.screen,
+            (180, 40, 40),
+            self.test_button,
+            border_radius=8
+        )
+
+        test_font = pygame.font.SysFont(None, 26)
+
+        test_label = test_font.render(
+            "TEST",
+            True,
+            (255, 255, 255)
+        )
+
+        test_rect = test_label.get_rect(
+            center=self.test_button.center
+        )
+
+        self.screen.blit(test_label, test_rect)
 
         self.draw_back_button()
+
+    def load_background(self, filename):
+
+        try:
+            image = pygame.image.load("assets/images/" + filename)
+            image = pygame.transform.scale(image, (self.width, self.height))
+            return image
+
+        except pygame.error:
+            print("Could not load", filename)
+            return None
+
+
+    #test
+    def test_complete_level(self):
+
+        self.attempts = 100
+        self.elapsed_time = 150
+        self.new_record = False
+
+        self.completed_levels.add(self.current_level)
+
+        if self.current_level == self.unlocked_levels:
+            if self.unlocked_levels < 5:
+                self.unlocked_levels += 1
+
+        self.current_screen = "complete"
