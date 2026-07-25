@@ -90,6 +90,9 @@ class Game:
                 if len(self.completed_levels) > 0:
                     self.unlocked_levels = min(max(self.completed_levels) + 1, 5)
                     self.new_record = False
+                    self.lock_message_time = 0
+                    self.lock_message_duration = 1200
+
 
         #welcome screen buttons
         self.start_button = pygame.Rect(350, 250, 300, 60)
@@ -242,24 +245,20 @@ class Game:
                         self.current_screen = "statistics"
 
                 #level select screen
-
                 elif self.current_screen == "levels":
-
                     if self.back_button.collidepoint(mouse):
-
                         self.current_screen = "welcome"
-
                     else:
-
                         for i in range(len(self.level_buttons)):
-
                             button = self.level_buttons[i]
 
                             if button.collidepoint(mouse):
 
                                 #locked level
                                 if i + 1 > self.unlocked_levels:
-                                    return
+
+                                    self.lock_message_time = pygame.time.get_ticks()
+                                    break
 
                                 self.current_level = i + 1
 
@@ -272,6 +271,9 @@ class Game:
                                 self.elapsed_time = 0
 
                                 self.current_screen = "game"
+
+                                break
+
 
                 #game scrren
 
@@ -728,6 +730,10 @@ class Game:
             )
 
             self.screen.blit(label,rect)
+
+
+            
+
         self.draw_back_button()
 
 
