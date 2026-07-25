@@ -87,11 +87,12 @@ class Game:
             if data["time"] is not None:
 
                 self.completed_levels.add(int(level))
-                if len(self.completed_levels) > 0:
-                    self.unlocked_levels = min(max(self.completed_levels) + 1, 5)
-                    self.new_record = False
-                    self.lock_message_time = 0
-                    self.lock_message_duration = 1200
+
+        if len(self.completed_levels) > 0:
+            self.unlocked_levels = min(max(self.completed_levels) + 1, 5)
+            self.new_record = False
+            self.lock_message_time = 0
+            self.lock_message_duration = 1200
 
 
         #welcome screen buttons
@@ -732,62 +733,7 @@ class Game:
             self.screen.blit(label,rect)
 
 
-    def draw_level_screen(self):
-        level_font_name = "Felix Titling"
-        title_font = pygame.font.SysFont(level_font_name,55)
-        title = title_font.render("Select Level", True,(255, 255, 255))
-        self.screen.blit(title, (320, 65))
-
-        button_font = pygame.font.SysFont(None,36)
-        for i in range(len(self.level_buttons)):
-            button = self.level_buttons[i]
-
-            if i + 1 <= self.unlocked_levels:
-                color = (100,100,150)
-                text = "Level " + str(i+1)
-            else:
-                color = (150,150,150)
-                text = "Locked"
-
-            pygame.draw.rect(
-                self.screen,
-                color,
-                button,
-                border_radius=10
-            )
-
-            label = button_font.render(
-                text,
-                True,
-                (255,255,255)
-            )
-
-            rect = label.get_rect(
-                center=button.center
-            )
-
-            self.screen.blit(label,rect)
-
-        #show a brief "Locked!" message after clicking a locked level
-        time_since_click = pygame.time.get_ticks() - self.lock_message_time
-
-        if time_since_click < self.lock_message_duration:
-
-            message_font = pygame.font.SysFont(None, 32)
-
-            message = message_font.render(
-                "That level is locked!",
-                True,
-                (200, 50, 50)
-            )
-
-            message_rect = message.get_rect(
-                center=(self.width // 2, 640)
-            )
-
-            self.screen.blit(message, message_rect)
-
-        self.draw_back_button()
+    
 
     
 
